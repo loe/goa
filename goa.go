@@ -16,15 +16,15 @@ func (p AuthProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Great success!")
 }
 
+func logAuthorization(req *http.Request) {
+	auth := req.Header.Get("Authorization")
+	log.Printf("Authorization: %s", auth)
+}
+
 func main() {
 	addr := flag.String("addr", ":8080", "proxy listen address")
 	flag.Parse()
 
-	director := func(req *http.Request) {
-		auth := req.Header.Get("Authorization")
-		log.Printf("Authorization: %s", auth)
-	}
-
-	proxy := AuthProxy{Director: director}
+	proxy := AuthProxy{Director: logAuthorization}
 	log.Fatal(http.ListenAndServe(*addr, proxy))
 }
