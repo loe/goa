@@ -15,7 +15,7 @@ func (p AuthProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	auth := r.Header.Get("Authorization")
 	log.Printf("Authorization: %s", auth)
 
-	fmt.Fprint(w, "Great success!")
+	fmt.Fprintln(w, "Great success!")
 }
 
 func main() {
