@@ -12,9 +12,7 @@ type AuthProxy struct {
 }
 
 func (p AuthProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	auth := r.Header.Get("Authorization")
-	log.Printf("Authorization: %s", auth)
-
+	p.Director(r)
 	fmt.Fprintln(w, "Great success!")
 }
 
@@ -22,6 +20,11 @@ func main() {
 	addr := flag.String("addr", ":8080", "proxy listen address")
 	flag.Parse()
 
-	var proxy AuthProxy
+	director := func(req *http.Request) {
+		auth := req.Header.Get("Authorization")
+		log.Printf("Authorization: %s", auth)
+	}
+
+	proxy := AuthProxy{Director: director}
 	log.Fatal(http.ListenAndServe(*addr, proxy))
 }
