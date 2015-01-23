@@ -2,24 +2,26 @@ package main
 
 import (
 	"flag"
-	"github.com/elazarl/goproxy"
+	"fmt"
 	"log"
 	"net/http"
 )
 
+type AuthProxy struct {
+	Director func(*http.Request)
+}
+
+func (p AuthProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	log.Printf("Authorization: %s", auth)
+
+	fmt.Fprint(w, "Great success!")
+}
+
 func main() {
-	verbose := flag.Bool("v", false, "should every proxy request be logged to stdout")
 	addr := flag.String("addr", ":8080", "proxy listen address")
 	flag.Parse()
-	proxy := goproxy.NewProxyHttpServer()
-	proxy.Verbose = *verbose
 
-	proxy.OnRequest().DoFunc(
-		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-			auth := r.Header.Get("Authorization")
-			log.Printf("Authorization: %s", auth)
-			return r, nil
-		})
-
+	var proxy AuthProxy
 	log.Fatal(http.ListenAndServe(*addr, proxy))
 }
